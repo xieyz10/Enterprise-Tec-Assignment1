@@ -27,7 +27,15 @@ server.get('images',function(req,res,next){
 
 server.get('/images/:id',function(req,res,next){
     imageSave.findOne({_id: req.params.id},function(error,image){
-        
+        if (error) return next(new restify.InvalidArgumentError(JSON.stringify(error.errors)))
+
+        if(image) {
+            res.send(image)
+        }else {
+            res.send(404)
+        }
     })
 })
+
+
 
