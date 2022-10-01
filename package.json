@@ -7,5 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mingyuan Xie",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "restify": "^4.1.1",
+    "save": "^2.9.0"
+  }
 }
