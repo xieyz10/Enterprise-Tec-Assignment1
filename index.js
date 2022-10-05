@@ -6,11 +6,11 @@ var restify = require('restify')
 var imagesSave = require('save')('images')
 var server = restify.createServer({ name: SERVER_NAME })
 
+var getRequestCounter = 0
+var postRequestCounter = 0
+
 server.listen(PORT, HOST, function () {
     console.log('Server %s listening at %s', server.name, server.url)
-    console.log('Resources:')
-    console.log(' /images')
-    console.log(' /images/:id')
 })
 
 server
@@ -21,18 +21,27 @@ server
   .use(restify.bodyParser())
 
 server.get('/', function (req, res, next) {
+    getRequestCounter+=1
+    console.log('GET Request: images home page')
+    console.log('Processed Request Count--> Get:%s, Post:%s', getRequestCounter, postRequestCounter)
     res.send('This is the home page')
     return next();
 });
 
 //Get all images in the system
 server.get('/images', function (req, res, next) {
+    getRequestCounter+=1
+    console.log('GET Request: get all images')
+    console.log('Processed Request Count--> Get:%s, Post:%s', getRequestCounter, postRequestCounter)
     imagesSave.find({}, function (error, images) {
         res.send(images)
     })
 })
 
 server.get('/images/:id', function (req, res, next) {
+    getRequestCounter+=1
+    console.log('GET Request: get image by ID')
+    console.log('Processed Request Count--> Get:%s, Post:%s', getRequestCounter, postRequestCounter)
     imagesSave.findOne({ _id: req.params.id }, function (error, image) {
         if (error) return next(new restify.InvalidArgumentError(JSON.stringify(error.errors)))
 
@@ -46,6 +55,9 @@ server.get('/images/:id', function (req, res, next) {
 
 // //Create a new image
 server.post('/images', function (req, res, next) {
+    postRequestCounter+=1
+    console.log('POST Request: add new image infoamtion')
+    console.log('Processed Request Count--> Get:%s, Post:%s', getRequestCounter, postRequestCounter)
     console.log("name="+req.params.name)
     if (req.params.name === undefined) {
         // If there are any errors, pass them to next in the correct format
@@ -66,7 +78,7 @@ server.post('/images', function (req, res, next) {
         size: req.params.size
     }
 
-    // Create the user using the persistence engine
+    // Create the image using the persistence engine
     imagesSave.create(newImage, function (error, image) {
 
         // If there are any errors, pass them to next in the correct format
@@ -78,7 +90,6 @@ server.post('/images', function (req, res, next) {
 })
 
 //delete image with image id
-// Delete user with the given id
 server.del('/images/:id', function (req, res, next) {
 
     // Delete the user with the persistence engine
@@ -87,9 +98,21 @@ server.del('/images/:id', function (req, res, next) {
       // If there are any errors, pass them to next in the correct format
       if (error) return next(new restify.InvalidArgumentError(JSON.stringify(error.errors)))
   
-      // Send a 200 OK response
-      res.send()
+      // Send a 204 response
+      res.send(204)
     })
+  })
+
+  //Delete all images 
+  server.del('/images', function (res,res,next){
+    imagesSave.deleteMany({},function (error, image) {
+  
+        // If there are any errors, pass them to next in the correct format
+        if (error) return next(new restify.InvalidArgumentError(JSON.stringify(error.errors)))
+    
+        // Send a 200 OK response
+        res.send()
+      })
   })
 
 
